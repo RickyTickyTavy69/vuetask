@@ -34,6 +34,9 @@ export default {
       set(value) {
         this.todos.forEach((todo) => {
           todo.completed = value;
+          this.saveTodo({
+            ...todo,
+          })
         });
       },
     },
@@ -54,6 +57,7 @@ export default {
         return;
       }
       this.todos.push(todoItem);
+      this.saveTodo(todoItem);
       this.newTodo = '';
     },
 
@@ -62,12 +66,35 @@ export default {
       todo.title = this.beforeEditCache;
     },
 
+    async deleteTodo(todo) {
+      this.dataBase = await this.getDatabase();
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.dataBase.transaction('items', 'readwrite');
+        const store = transaction.objectStore('items');
+
+        store.delete(todo.id);
+
+        transaction.oncomplete = () => {
+          resolve('Item successfully deleted.');
+        }
+
+        transaction.onerror = (event) => {
+          reject(event);
+        }
+      })
+    },
+
     doneEdit(todo) {
       if (!this.editedTodo) {
         return;
       }
       this.editedTodo = null;
       todo.title = todo.title.trim();
+      this.saveTodo({
+        ...todo,
+        title: todo.title,
+      });
       if (!todo.title) {
         this.removeTodo(todo);
       }
@@ -137,12 +164,20 @@ export default {
     },
 
     removeCompleted() {
-      this.todos = this.todos.filter((item) => !item.completed);
+      this.todos = this.todos.filter((item) => {
+        if(item.completed){
+          this.deleteTodo(item);
+        } else {
+          return !item.completed
+        }
+      });
+
     },
 
     removeTodo(todo) {
       const index = this.todos.indexOf(todo);
       this.todos.splice(index, 1);
+      this.deleteTodo(todo);
     },
 
     async saveTodo(todo){
@@ -166,6 +201,9 @@ export default {
 
     updateTodo(todo) {
       this.todos.find((item) => item === todo).completed = !todo.completed;
+      this.saveTodo({
+        ...todo
+      })
     },
   },
   async created() {
@@ -178,9 +216,6 @@ export default {
   <section class="todoapp">
     <header class="header">
       <h1>todos</h1>
-      <h2>Database</h2>
-      <p>{{dataBase}}</p>
-      <button @click="getDatabase">Get Database</button>
       <input
         class="new-todo"
         autofocus
