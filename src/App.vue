@@ -1,272 +1,237 @@
-<script>
-import "./styles/todomvc-base.css";
-import "./styles/todomvc-index.css";
+<script setup>
 
-export default {
-  name: 'App',
-  data: () => ({
-    dataBase: null,
-    todos: [],
-    newTodo: '',
-    editedTodo: null,
-    visibility: 'all',
-  }),
+// components
+import AppHeader from '@/widgets/Header/App-header.vue';
+import ShoppingList from '@/widgets/ShoppingList/ShoppingList.vue';
 
-  computed: {
-    activeTasks() {
-      return this.todos.filter((todo) => !todo.completed);
-    },
-    filteredTodos() {
-      if (this.visibility === 'all') {
-        return this.todos;
-      } if (this.visibility === 'active') {
-        return this.activeTasks;
-      }
-      return this.todos.filter((todo) => todo.completed);
-    },
-    remaining() {
-      return this.activeTasks.length;
-    },
-    allDone: {
-      get() {
-        return this.remaining === 0;
-      },
-      set(value) {
-        this.todos.forEach((todo) => {
-          todo.completed = value;
-          this.saveTodo({
-            ...todo,
-          })
-        });
-      },
-    },
-  },
+// DB
+import DB from '@/db';
 
-  // methods that implement data logic.
-  // note there's no DOM manipulation here at all.
-  methods: {
-    addTodo() {
-      const value = this.newTodo && this.newTodo.trim();
-      const todoItem = {
-        id: this.todos.length + 1,
-        title: value,
-        completed: false,
-      };
+import { useDisplay } from 'vuetify'
 
-      if (!value) {
-        return;
-      }
-      this.todos.push(todoItem);
-      this.saveTodo(todoItem);
-      this.newTodo = '';
-    },
+import { computed, ref, onMounted } from 'vue';
 
-    cancelEdit(todo) {
-      this.editedTodo = null;
-      todo.title = this.beforeEditCache;
-    },
 
-    async deleteTodo(todo) {
-      this.dataBase = await this.getDatabase();
+const { mobile } = useDisplay()
 
-      return new Promise((resolve, reject) => {
-        const transaction = this.dataBase.transaction('items', 'readwrite');
-        const store = transaction.objectStore('items');
+// const user = reactive({ firstName: 'John', lastName: 'Doe', age: 25 });
+const dataBase = ref(null);
+const todos = ref([]);
+const newTodo = ref('');
+const editedTodo = ref(null);
+const visibility = ref('all');
+const beforeEditCache = ref();
 
-        store.delete(todo.id);
+onMounted(() => {
+  console.log("is mobile app", mobile.value);
+})
 
-        transaction.oncomplete = () => {
-          resolve('Item successfully deleted.');
-        }
 
-        transaction.onerror = (event) => {
-          reject(event);
-        }
-      })
-    },
 
-    doneEdit(todo) {
-      if (!this.editedTodo) {
-        return;
-      }
-      this.editedTodo = null;
-      todo.title = todo.title.trim();
-      this.saveTodo({
-        ...todo,
-        title: todo.title,
-      });
-      if (!todo.title) {
-        this.removeTodo(todo);
-      }
-    },
+  const updateTodo = (todo) => {
 
-    editTodo(todo) {
-      this.beforeEditCache = todo.title;
-      this.editedTodo = todo;
-    },
+    todos.value.find((item) => item === todo).completed = !todo.completed;
 
-    async getDatabase(){
-      return new Promise((resolve, reject) => {
-        if(this.dataBase){
-          resolve(this.dataBase)
-        }
+    saveTodo({
+      ...todo
+    })
+  };
 
-        let request = window.indexedDB.open('shopDB2', 1);
 
-        request.onerror = (event) => {
-          console.log("Error opening DB", event);
-          reject('Error');
-        };
 
-        request.onsuccess = (event) => {
-          console.log("DB was successfully opened", event);
-          this.dataBase = event.target.result;
-          resolve(this.dataBase);
-        };
+/* async created() {
+  this.todos = await this.getToDoStore();
+} */
 
-        request.onupgradeneeded = (event) => {
-          let dataBase = event.target.result;
-          dataBase.createObjectStore('items', {
-            autoIncrement: true,
-            keyPath: 'id',
-          })
-        };
+const removeCompleted =() => {
+  todos.value = todos.value.filter((item) => {
+    if(item.completed){
+      deleteTodo(item);
+    } else {
+      return !item.completed
+    }
+  });
+}
 
-      })
-    },
+const saveTodo = async (todo) => {
+  dataBase.value = await DB.getDataBase();
 
-    async getToDoStore() {
-      this.dataBase = await this.getDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = dataBase.value.transaction('items', 'readwrite');
+    const store = transaction.objectStore('items');
 
-      return new Promise((resolve, reject) => {
-        const transaction = this.dataBase.transaction('items', 'readonly');
-        const store = transaction.objectStore('items');
+    store.put(todo);
 
-        let itemsList = [];
-        store.openCursor().onsuccess = (event) => {
-          const cursor = event.target.result;
-          if(cursor){
-              itemsList.push(cursor.value);
-              cursor.continue();
-          }
-        }
-        transaction.oncomplete = () => {
-          resolve(itemsList);
-        }
-        transaction.onerror = (event) => {
-          reject(event)
-        }
-      })
-    },
+    transaction.oncomplete = () => {
+      resolve('Item successfully saved.');
+    }
 
-    pluralize(word, count) {
-      return word + (count === 1 ? '' : 's');
-    },
+    transaction.onerror = (event) => {
+      reject(event)
+    }
+  })
+}
 
-    removeCompleted() {
-      this.todos = this.todos.filter((item) => {
-        if(item.completed){
-          this.deleteTodo(item);
-        } else {
-          return !item.completed
-        }
-      });
+const deleteTodo = async (todo) => {
+  const data = await getDatabase();
 
-    },
+  return new Promise((resolve, reject) => {
+    const transaction = data.transaction('items', 'readwrite');
+    const store = transaction.objectStore('items');
 
-    removeTodo(todo) {
-      const index = this.todos.indexOf(todo);
-      this.todos.splice(index, 1);
-      this.deleteTodo(todo);
-    },
+    store.delete(todo.id);
 
-    async saveTodo(todo){
-      this.database = await this.getDatabase();
+    transaction.oncomplete = () => {
+      resolve('Item successfully deleted.');
+    }
 
-      return new Promise((resolve, reject) => {
-        const transaction = this.database.transaction('items', 'readwrite');
-        const store = transaction.objectStore('items');
+    transaction.onerror = (event) => {
+      reject(event);
+    }
+  })
+}
 
-        store.put(todo);
-
-        transaction.oncomplete = () => {
-          resolve('Item successfully saved.');
-        }
-
-        transaction.onerror = (event) => {
-          reject(event)
-        }
-      })
-    },
-
-    updateTodo(todo) {
-      this.todos.find((item) => item === todo).completed = !todo.completed;
-      this.saveTodo({
-        ...todo
-      })
-    },
-  },
-  async created() {
-    this.todos = await this.getToDoStore();
+onMounted(
+  async () => {
+    todos.value = await DB.getItems();
   }
-};
+)
+
+const editTodo = (todo) => {
+  beforeEditCache.value = todo.title;
+  editedTodo.value = todo;
+}
+
+const cancelEdit = (todo) => {
+  editedTodo.value = null;
+  todo.title = beforeEditCache.value;
+}
+
+const doneEdit = (todo) => {
+  // console.log("done edit")
+  if (!editedTodo.value) {
+    return;
+  }
+  editedTodo.value = null;
+  todo.title = todo.title.trim();
+  saveTodo({
+    ...todo,
+    title: todo.title,
+  });
+  if (!todo.title) {
+    removeTodo(todo);
+  }
+}
+
+const pluralize = (word, count) => {
+  return word + (count === 1 ? '' : 's');
+}
+
+
+
+const addTodo = () => {
+  const value = newTodo.value && newTodo.value.trim();
+  const todoItem = {
+    id: todos.value.length + 1,
+    title: value,
+    completed: false,
+  };
+
+  if (!value) {
+    return;
+  }
+  todos.value.push(todoItem);
+  saveTodo(todoItem);
+  newTodo.value = '';
+}
+
+
+const removeTodo = (todo) => {
+  const index = todos.value.indexOf(todo);
+  todos.value.splice(index, 1);
+  deleteTodo(todo);
+}
+
+
+
+const activeTasks = computed(() => todos.value.filter((todo) => !todo.completed));
+const filteredTodos = computed(() => {
+  if (visibility.value === 'all') {
+    return todos.value;
+  } if (visibility.value === 'active') {
+    return activeTasks;
+  }
+  return todos.value.filter((todo) => todo.completed);
+})
+
+const remaining = computed(() => activeTasks.value.length);
+
+const allDone = computed({
+  get() {
+    return remaining.value === 0;
+  },
+  set(value) {
+    todos.value.forEach((todo) => {
+      todo.completed = value;
+      saveTodo({
+        ...todo,
+      })
+    });
+  }
+});
 </script>
 
+
 <template>
-  <section class="todoapp">
-    <header class="header">
-      <h1>todos</h1>
-      <input
-        class="new-todo"
+  <AppHeader/>
+  <v-card
+    class="mx-auto"
+    width="1000"
+  >
+    <div class="d-flex mb-10">
+      <v-text-field
+        placeholder="what do I need to buy?"
         autofocus
         autocomplete="off"
-        placeholder="What needs to be done?"
         v-model="newTodo"
         @keyup.enter="addTodo"
       />
-    </header>
-    <section class="main" v-show="todos.length">
-      <input
-        id="toggle-all"
-        class="toggle-all"
-        type="checkbox"
-        v-model="allDone"
+      <v-text-field
+        placeholder="price €"
+        autofocus
+        autocomplete="off"
+        type="number"
+        @keyup.enter="addTodo"
       />
-      <label for="toggle-all">Mark all as complete</label>
-      <ul class="todo-list">
-        <li
-          class="todo"
-          v-for="todo in filteredTodos"
-          :key="todo.id"
-          :class="{ completed: todo.completed, editing: todo == editedTodo }"
-        >
-          <div class="view">
-            <input
-              class="toggle"
-              type="checkbox"
-              @click="updateTodo(todo)"
-              :checked="todo.completed"
-            />
-            <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-            <button class="destroy" @click="removeTodo(todo)"></button>
-          </div>
-          <input
-            class="edit"
-            type="text"
-            v-model="todo.title"
-            @blur="doneEdit(todo)"
-            @keyup.enter="doneEdit(todo)"
-            @keyup.esc="cancelEdit(todo)"
-          />
-        </li>
-      </ul>
-    </section>
+      <v-btn @click="addTodo">ADD to List</v-btn>
+    </div>
+
+    <div class="mb-10">
+      <v-checkbox-btn
+        class="border-md"
+        color="primary"
+        v-model="allDone"
+        label="mark all as complete"
+      />
+    </div>
+
+
+  <ShoppingList
+    :todos="todos"
+    :filtered-todos="filteredTodos"
+    :update-todo="updateTodo"
+    :remove-todo="removeTodo"
+    :edited-todo="editedTodo"
+  />
+
+
     <footer class="footer" v-show="todos.length">
       <span class="todo-count">
         <strong v-text="remaining"></strong>
         {{ pluralize('item', remaining) }} left
       </span>
-      <ul class="filters">
+
+      <v-list class="d-flex justify-space-around">
         <li>
           <button
             @click="visibility = 'all'"
@@ -294,7 +259,7 @@ export default {
             Completed
           </button>
         </li>
-      </ul>
+      </v-list>
       <button
         class="clear-completed"
         @click="removeCompleted"
@@ -303,28 +268,5 @@ export default {
         Clear completed
       </button>
     </footer>
-  </section>
-  <footer class="info">
-    <p>Double-click to edit a todo</p>
-    <p>
-      A Vue 3 iteration on
-      <a href="https://todomvc.com/examples/vue/">TodoMVC - Vue</a>
-    </p>
-  </footer>
+  </v-card>
 </template>
-
-<style>
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-.btn {
-  padding: 0 10px;
-}
-</style>
