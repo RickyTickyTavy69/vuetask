@@ -1,7 +1,9 @@
-export const CommonTexts = {
-    appTitle: "",
-    iconTitle : "sunlightYellowOverdrive",
-    profile: "profile",
-    bookmarks: "bookmarks",
-    cart: "cart",
+const CommonTexts = {
+  appTitle: '',
+  iconTitle: 'sunlightYellowOverdrive',
+  profile: 'profile',
+  bookmarks: 'bookmarks',
+  cart: 'cart',
 } as const;
+
+export default CommonTexts;

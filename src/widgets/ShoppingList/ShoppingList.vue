@@ -1,66 +1,58 @@
 <script setup lang="ts">
-  import DB from '@/db';
-  import { onMounted, ref } from 'vue';
+import DB from '@/db';
+import { onMounted, ref, defineProps } from 'vue';
 
-  const props = defineProps<{
-    filteredItems: [],
+import { Item } from '@/app/types/items.types';
+
+const props = defineProps<{
+    filteredItems: Array<Item>,
+    removeItem:(item: Item) => void,
+    updateItem: (item: Item) => void,
   }>();
 
-  const items = ref([]);
+const items = ref([props.filteredItems]);
 
-  const previousItem = ref<string>();
-  const editedItem = ref();
+const previousItem = ref<string>('');
+const editedItem = ref();
 
-  onMounted(async () => {
-    items.value = await DB.getItems();
-  })
+onMounted(async () => {
+  items.value = await DB.getItems();
+});
 
-  const removeItem = (item: any) => {
-    const index = items.value.indexOf(item);
-    items.value.splice(index, 1);
+// editing
+
+const editItem = (item: Item) => {
+  previousItem.value = item.title;
+  editedItem.value = item;
+};
+
+const cancelEdit = (item: Item) => {
+  editedItem.value = null;
+  // item.title = previousItem.value.toString();
+  // what does it do
+};
+
+const doneEdit = (item : Item) => {
+  console.log('item', item);
+  if (!editedItem.value) {
+    return;
+  }
+  editedItem.value = null;
+  // item.title = item.title.trim();
+  // what does it do
+  DB.saveItem({
+    ...item,
+    title: item.title,
+  });
+  if (!item.title) {
     DB.deleteItem(item);
   }
-
-  const updateItem = async (item: any) => {
-    items.value.find((el) => el === item).completed = !item.completed;
-    await DB.saveItem({
-      ...item
-    })
-  };
-
-  // editing
-
-  const editItem = (item: any) => {
-    previousItem.value = item.title;
-    editedItem.value = item;
-  }
-
-  const cancelEdit = (item: any) => {
-    editedItem.value = null;
-    item.title = previousItem;
-  }
-
-  const doneEdit = (item : any) => {
-    console.log("item", item);
-    if (!editedItem.value) {
-      return;
-    }
-    editedItem.value = null;
-    item.title = item.title.trim();
-    DB.saveItem({
-      ...item,
-      title: item.title,
-    });
-    if (!item.title) {
-      DB.deleteItem(item)
-    }
-  }
+};
 
 </script>
 
-
 <template>
-  <div v-show="items.length">
+  <div v-show="props.filteredItems.length">
 
     <div
       class="d-flex justify-space-between ga-10 border-md"
@@ -76,7 +68,10 @@
           :checked="item.completed"
         />
       </div>
-      <h4 @dblclick="editItem(item)" v-if="item !==editedItem" class="text-h4">{{item.title}}</h4>
+      <h4 @dblclick="editItem(item)" v-if="item !==editedItem" :class="{
+        'text-h4' : true,
+        'text-decoration-line-through': item.completed,
+      }">{{ item.title }} - ({{item.count}}) </h4>
       <v-text-field
         autocomplete="off"
         autofocus
@@ -94,12 +89,3 @@
     </div>
   </div>
 </template>
-
-
-
-
-
-
-
-
-

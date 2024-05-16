@@ -1,92 +1,90 @@
 <script setup lang="ts">
 
-  const props = defineProps<{
-    updateItemsList : (item: any) => void;
-    updatedTodo: any;
-  }>()
+import { Item } from '@/app/types/items.types';
 
-  // vue
-  import { computed, onMounted, ref } from 'vue';
-  import DB from '@/db';
+// vue
+import {
+  computed, onMounted, ref, defineProps,
+} from 'vue';
 
-  // data
-  const newItem = ref('');
-  const items = ref([]);
+import DB from '@/db';
 
-  const remaining = computed(() => activeTasks.value.length);
-  const activeTasks = computed(() => items.value.filter((item) => !item.completed));
+const props = defineProps<{
+    updateItemsList :(item: Item) => void;
+  }>();
 
-  const emit = defineEmits<{
-    (e: 'update-completed', value: string): void
-  }>()
+// data
+const newItem = ref<string>('');
+const count = ref<number>(1);
+const items = ref<Array<Item>>([]);
 
-  const completedInputModel = computed({
-    // getter
-    get() {
-      return props.updatedTodo
-    },
-    // setter
-    set(newValue: string) {
-      emit('update-completed', newValue)
-    },
-  })
+const activeTasks = computed(() => items.value.filter((item) => !item.completed));
+const remaining = computed(() => activeTasks.value.length);
 
-  const allDone = computed({
-    get() {
-      return remaining.value === 0;
-    },
-    set(value) {
-      items.value.forEach((item) => {
-        item.completed = value;
-        DB.saveItem({
-          ...item,
-        })
+const allDone = computed({
+  get() {
+    return remaining.value === 0;
+  },
+  set(value: boolean) {
+    items.value.forEach((item, idx) => {
+      items.value[idx].completed = value;
+      DB.saveItem({
+        ...item,
       });
-    }
-  });
+    });
+  },
+});
 
-  // methods
-  const addItem = () => {
-    const value = newItem.value && newItem.value.trim();
-    const Item = {
-      id: items.value.length + 1,
-      title: value,
-      completed: false,
-    };
+// methods
+const addItem = () => {
+  const value = newItem.value && newItem.value.trim();
+  const item = {
+    id: items.value.length + 1,
+    title: value,
+    completed: false,
+    count: count.value,
+  };
 
-    if (!value) {
-      return;
-    }
-    props.updateItemsList(Item);
-    items.value.push(Item);
-    DB.saveItem(Item);
-    emit('update-completed', "newValue");
-    newItem.value = '';
+  if (!value) {
+    return;
   }
+  props.updateItemsList(item);
+  DB.saveItem(item);
+  newItem.value = '';
+};
 
-  // lifecycle
-  onMounted(async () => {
-    items.value = await DB.getItems();
-  })
-
+// lifecycle
+onMounted(async () => {
+  items.value = await DB.getItems();
+});
 
 </script>
 
 <template>
   <div class="d-flex mb-10">
+    <div>
+      <v-text-field
+        placeholder="what do I need to buy?"
+        autofocus
+        autocomplete="off"
+        v-model="newItem"
+        @keyup.enter="addItem"
+      />
+      <v-text-field
+        placeholder="price €"
+        autofocus
+        autocomplete="off"
+        type="number"
+        @keyup.enter="addItem"
+      />
+    </div>
     <v-text-field
-      placeholder="what do I need to buy?"
-      autofocus
-      autocomplete="off"
-      v-model="newItem"
-      @keyup.enter="addItem"
-    />
-    <v-text-field
-      placeholder="price €"
+      placeholder="count"
       autofocus
       autocomplete="off"
       type="number"
       @keyup.enter="addItem"
+      v-model="count"
     />
     <v-btn @click="addItem">ADD to List</v-btn>
   </div>

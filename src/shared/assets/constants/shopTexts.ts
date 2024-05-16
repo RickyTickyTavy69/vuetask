@@ -1,3 +1,5 @@
-export const shopTexts = {
-  shopTitle: "This is overdrive shop"
+const shopTexts = {
+  shopTitle: 'This is overdrive shop',
 } as const;
+
+export default shopTexts;

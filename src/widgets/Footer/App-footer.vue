@@ -1,42 +1,25 @@
 <script setup lang="ts">
 
+import { Item, Visibility } from '@/app/types/items.types';
+
+import { computed, defineProps } from 'vue';
+
 const props = defineProps<{
-  visibility: any,
-  changeVisibility: (visibility: string) => void,
-}>()
+  visibility: Visibility,
+  changeVisibility:(visibility: Visibility) => void,
+  items: Array<Item>,
+  removeCompleted: () => void,
+}>();
 
-import { computed, onMounted, ref } from 'vue';
-import DB from '@/db';
-
-const todos = ref([]);
-
-
-const activeTasks = computed(() => todos.value.filter((todo) => !todo.completed));
+const activeTasks = computed(() => props.items.filter((todo) => !todo.completed));
 const remaining = computed(() => activeTasks.value.length);
 
-const pluralize = (word, count) => {
-  return word + (count === 1 ? '' : 's');
-}
-
-const removeCompleted = () => {
-  todos.value = todos.value.filter((item) => {
-    if(item.completed){
-      DB.deleteItem(item);
-    } else {
-      return !item.completed
-    }
-  });
-}
-
-onMounted(async () => {
-  todos.value = await DB.getItems();
-})
+const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's');
 
 </script>
 
-
 <template>
-  <footer class="footer" v-show="todos.length">
+  <footer class="footer" v-show="props.items.length">
       <span class="todo-count">
         <strong v-text="remaining"></strong>
         {{ pluralize('item', remaining) }} left
@@ -74,7 +57,7 @@ onMounted(async () => {
     <button
       class="clear-completed"
       @click="removeCompleted"
-      v-show="todos.length > remaining"
+      v-show="items.length > remaining"
     >
       Clear completed
     </button>
