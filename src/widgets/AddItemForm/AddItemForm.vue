@@ -4,7 +4,7 @@ import { Item } from '@/app/types/items.types';
 
 // vue
 import {
-  computed, onMounted, ref, defineProps,
+  computed, onMounted, ref,
 } from 'vue';
 
 import DB from '@/db';

@@ -2,7 +2,7 @@
 
 import { Item, Visibility } from '@/app/types/items.types';
 
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
   visibility: Visibility,
@@ -31,6 +31,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
           @click="changeVisibility('all')"
           :class="{ selected: visibility == 'all' }"
           class="btn"
+          data-testid="btn-visibility-all"
         >
           All
         </button>
@@ -40,6 +41,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
           @click="changeVisibility('active')"
           :class="{ selected: visibility == 'active' }"
           class="btn"
+          data-testid="btn-visibility-active"
         >
           Active
         </button>
@@ -49,6 +51,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
           @click="changeVisibility('completed')"
           :class="{ selected: visibility == 'completed' }"
           class="btn"
+          data-testid="btn-visibility-completed"
         >
           Completed
         </button>

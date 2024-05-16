@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DB from '@/db';
-import { onMounted, ref, defineProps } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { Item } from '@/app/types/items.types';
 
