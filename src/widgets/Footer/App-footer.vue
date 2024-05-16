@@ -27,42 +27,42 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
 
     <v-list class="d-flex justify-space-around">
       <li>
-        <button
+        <v-btn
           @click="changeVisibility('all')"
           :class="{ selected: visibility == 'all' }"
           class="btn"
           data-testid="btn-visibility-all"
         >
           All
-        </button>
+        </v-btn>
       </li>
       <li>
-        <button
+        <v-btn
           @click="changeVisibility('active')"
           :class="{ selected: visibility == 'active' }"
           class="btn"
           data-testid="btn-visibility-active"
         >
           Active
-        </button>
+        </v-btn>
       </li>
       <li>
-        <button
+        <v-btn
           @click="changeVisibility('completed')"
           :class="{ selected: visibility == 'completed' }"
           class="btn"
           data-testid="btn-visibility-completed"
         >
           Completed
-        </button>
+        </v-btn>
       </li>
     </v-list>
-    <button
+    <v-btn
       class="clear-completed"
       @click="removeCompleted"
       v-show="items.length > remaining"
     >
       Clear completed
-    </button>
+    </v-btn>
   </footer>
 </template>

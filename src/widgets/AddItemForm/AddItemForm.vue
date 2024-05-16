@@ -61,37 +61,43 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="d-flex mb-10">
+  <div class="d-flex justify-center mb-10">
     <div>
-      <v-text-field
-        placeholder="what do I need to buy?"
-        autofocus
-        autocomplete="off"
-        v-model="newItem"
-        @keyup.enter="addItem"
-      />
-      <v-text-field
-        placeholder="price €"
-        autofocus
-        autocomplete="off"
-        type="number"
-        @keyup.enter="addItem"
-      />
+      <div>
+        <v-text-field
+          label="item to buy"
+          placeholder="what do I need to buy?"
+          autofocus
+          autocomplete="off"
+          v-model="newItem"
+          @keyup.enter="addItem"
+        />
+        <v-text-field
+          label="price"
+          placeholder="price in €"
+          autofocus
+          autocomplete="off"
+          type="number"
+          @keyup.enter="addItem"
+        />
+        <v-text-field
+          label="amount"
+          placeholder="how many"
+          autofocus
+          autocomplete="off"
+          type="number"
+          @keyup.enter="addItem"
+          v-model="count"
+        />
+      </div>
+
+      <v-btn @click="addItem">ADD to List</v-btn>
     </div>
-    <v-text-field
-      placeholder="count"
-      autofocus
-      autocomplete="off"
-      type="number"
-      @keyup.enter="addItem"
-      v-model="count"
-    />
-    <v-btn @click="addItem">ADD to List</v-btn>
   </div>
 
   <div class="mb-10">
     <v-checkbox-btn
-      class="border-md"
+      class="border-md w-25"
       color="primary"
       v-model="allDone"
       label="mark all as complete"

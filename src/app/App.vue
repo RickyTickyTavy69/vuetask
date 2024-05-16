@@ -82,9 +82,10 @@ const removeCompleted = () => {
 </script>
 
 <template>
-  <AppHeader/>
+    <AppHeader/>
     <v-card class="mx-auto" width="1000">
       <AddItemForm :updateItemsList="updateItemsList"/>
+
       <ShoppingList
         :items="todos"
         :filtered-items="filteredTodos as Array<Item>"

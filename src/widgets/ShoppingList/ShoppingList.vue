@@ -52,7 +52,7 @@ const doneEdit = (item : Item) => {
 </script>
 
 <template>
-  <div v-show="props.filteredItems.length">
+  <div class="border-xl h-25" v-show="props.filteredItems.length">
 
     <div
       class="d-flex justify-space-between ga-10 border-md"
