@@ -3,4 +3,7 @@ module.exports = {
   setupFilesAfterEnv: [
     "<rootDir>/src/setupTests.ts"
   ],
+  testMatch: [
+    '**/?(*.)+(spec|test).(js|ts|tsx)'
+  ]
 };

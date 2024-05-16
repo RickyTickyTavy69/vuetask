@@ -99,33 +99,3 @@ const removeCompleted = () => {
       />
     </v-card>
 </template>
-
-/*
-
-const beforeEditCache = ref();
-
-const editTodo = (todo) => {
-beforeEditCache.value = todo.title;
-editedTodo.value = todo;
-}
-
-const cancelEdit = (todo) => {
-editedTodo.value = null;
-todo.title = beforeEditCache.value;
-}
-
-const doneEdit = (todo) => {
-// console.log("done edit")
-if (!editedTodo.value) {
-return;
-}
-editedTodo.value = null;
-todo.title = todo.title.trim();
-DB.saveItem({
-...todo,
-title: todo.title,
-});
-if (!todo.title) {
-removeTodo(todo);
-}
-} */

@@ -1,8 +1,8 @@
-import { render } from '@testing-library/vue';
+import { fireEvent, render, waitFor } from '@testing-library/vue';
 import AppFooter from '@/widgets/Footer/App-footer.vue';
 
-describe('Footer test', () => {
 
+describe('Footer test', () => {
 
 
   it('should select the visibility', () => {
@@ -21,11 +21,13 @@ describe('Footer test', () => {
 
   });
 
- /* it('should select the visibility', async () => {
+  it('should change the visibility when clicked the button', async () => {
+
+    const changeVisibility = jest.fn();
 
     const { getByTestId} = render(AppFooter, {
       props: {
-        changeVisibility: jest.fn(),
+        changeVisibility,
         visibility: "all",
         items: [],
         removeCompleted: jest.fn(),
@@ -35,12 +37,11 @@ describe('Footer test', () => {
     const buttonActive = getByTestId("btn-visibility-active")
     expect(getByTestId("btn-visibility-all")).toHaveClass("selected");
 
-    await user.click(buttonActive);
+    await fireEvent.click(buttonActive);
 
-    expect(getByTestId("btn-visibility-all")).not.toHaveClass("selected");
-    expect(getByTestId("btn-visibility-active")).toHaveClass("selected");
+    expect(changeVisibility).toHaveBeenCalledWith("active");
 
-  }); */
+  });
 
 
 });
