@@ -13,20 +13,15 @@ import DB from '@/db';
 // styles
 import { useDisplay } from 'vuetify'
 import AppFooter from '@/widgets/Footer/App-footer.vue';
+import AddItemForm from '@/widgets/AddItemForm/AddItemForm.vue';
 const { mobile } = useDisplay()
 
 
-/****************************/
-import { shallowRef } from 'vue'
-
-const model = shallowRef('Egg plant')
-/*****************************/
-
 // data
 const todos = ref([]);
-const newTodo = ref('');
-const editedTodo = ref(null);
+const updatedTodo = ref("");
 const visibility = ref('all');
+const updateReady = ref(false);
 
 
 const activeTasks = computed(() => todos.value.filter((todo) => !todo.completed));
@@ -39,21 +34,7 @@ const filteredTodos = computed(() => {
   return todos.value.filter((todo) => todo.completed);
 })
 
-const remaining = computed(() => activeTasks.value.length);
 
-const allDone = computed({
-  get() {
-    return remaining.value === 0;
-  },
-  set(value) {
-    todos.value.forEach((todo) => {
-      todo.completed = value;
-      DB.saveItem({
-        ...todo,
-      })
-    });
-  }
-});
 
 
 // lifecycle
@@ -62,27 +43,21 @@ onMounted(async () => {
   todos.value = await DB.getItems();
 })
 
-// methods
-// todos
-
-const addTodo = () => {
-  const value = newTodo.value && newTodo.value.trim();
-  const todoItem = {
-    id: todos.value.length + 1,
-    title: value,
-    completed: false,
-  };
-
-  if (!value) {
-    return;
-  }
-  todos.value.push(todoItem);
-  DB.saveItem(todoItem);
-  newTodo.value = '';
-}
 
 const changeVisibility = (newValue) => {
   visibility.value = newValue;
+}
+
+const updateItemsList = (item) => {
+  // console.log("updated");
+  // const newTodos = [...todos.value, item];
+  todos.value.push(item);
+  updatedTodo.value = item;
+}
+
+const onUpdateCompleted = (updatedTodo) => {
+  console.log("update completed")
+  updateReady.value = true;
 }
 
 </script>
@@ -90,46 +65,11 @@ const changeVisibility = (newValue) => {
 
 <template>
   <AppHeader/>
-
-  <v-card
-    class="mx-auto"
-    width="1000"
-  >
-      <div class="d-flex mb-10">
-       <v-text-field
-         placeholder="what do I need to buy?"
-         autofocus
-         autocomplete="off"
-         v-model="newTodo"
-         @keyup.enter="addTodo"
-       />
-       <v-text-field
-         placeholder="price €"
-         autofocus
-         autocomplete="off"
-         type="number"
-         @keyup.enter="addTodo"
-       />
-       <v-btn @click="addTodo">ADD to List</v-btn>
-     </div>
-
-     <div class="mb-10">
-       <v-checkbox-btn
-         class="border-md"
-         color="primary"
-         v-model="allDone"
-         label="mark all as complete"
-       />
-     </div>
-
-
-  <ShoppingList
-    :filtered-items="filteredTodos"
-  />
-
-    <AppFooter :visibility="visibility" :change-visibility="changeVisibility" />
-
-  </v-card>
+    <v-card class="mx-auto" width="1000">
+      <AddItemForm :updatedTodo="updatedTodo" :updateItemsList="updateItemsList" @update-completed="onUpdateCompleted"/>
+      <ShoppingList :filtered-items="filteredTodos"/>
+      <AppFooter :visibility="visibility" :change-visibility="changeVisibility" />
+    </v-card>
 </template>
 
 
