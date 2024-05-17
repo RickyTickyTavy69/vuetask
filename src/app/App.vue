@@ -82,21 +82,22 @@ const removeCompleted = () => {
 </script>
 
 <template>
+  <v-app>
     <AppHeader/>
-    <v-card class="mx-auto">
-      <AddItemForm :updateItemsList="updateItemsList"/>
-
-      <ShoppingList
-        :items="todos"
-        :filtered-items="filteredTodos as Array<Item>"
-        :removeItem="removeItem"
-        :updateItem="updateItem"
-      />
-      <AppFooter
-        :items="todos"
-        :visibility="visibility"
-        :change-visibility="changeVisibility"
-        :remove-completed="removeCompleted"
-      />
-    </v-card>
+    <v-container class="fill-height border-md">
+        <AddItemForm :updateItemsList="updateItemsList"/>
+        <ShoppingList
+          :items="todos"
+          :filtered-items="filteredTodos as Array<Item>"
+          :removeItem="removeItem"
+          :updateItem="updateItem"
+        />
+    </v-container>
+    <AppFooter
+      :items="todos"
+      :visibility="visibility"
+      :change-visibility="changeVisibility"
+      :remove-completed="removeCompleted"
+    />
+  </v-app>
 </template>

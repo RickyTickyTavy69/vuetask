@@ -61,10 +61,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="d-flex justify-center mb-10">
-    <div>
-      <div>
+  <v-container class="d-flex flex-column mb-10 mx-auto border-md">
+      <div class="d-flex ga-10">
         <v-text-field
+          class="w-25"
           label="item to buy"
           placeholder="what do I need to buy?"
           autofocus
@@ -73,6 +73,7 @@ onMounted(async () => {
           @keyup.enter="addItem"
         />
         <v-text-field
+          class="w-25"
           label="price"
           placeholder="price in €"
           autofocus
@@ -80,7 +81,10 @@ onMounted(async () => {
           type="number"
           @keyup.enter="addItem"
         />
+      </div>
+      <div class="d-flex ga-10">
         <v-text-field
+          class="w-25"
           label="amount"
           placeholder="how many"
           autofocus
@@ -89,20 +93,17 @@ onMounted(async () => {
           @keyup.enter="addItem"
           v-model="count"
         />
+        <v-btn class="w-25" @click="addItem">ADD to List</v-btn>
       </div>
-
-      <v-btn @click="addItem">ADD to List</v-btn>
+    <div class="mb-10 d-flex justify-center">
+      <div class="w-25">
+        <v-checkbox-btn
+          class="border-md"
+          color="primary"
+          v-model="allDone"
+          label="mark all as complete"
+        />
+      </div>
     </div>
-  </div>
-
-  <div class="mb-10 d-flex justify-center">
-    <div class="w-25">
-      <v-checkbox-btn
-        class="border-md"
-        color="primary"
-        v-model="allDone"
-        label="mark all as complete"
-      />
-    </div>
-  </div>
+    </v-container>
 </template>

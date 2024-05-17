@@ -53,12 +53,11 @@ const doneEdit = (item : Item) => {
 </script>
 
 <template>
-  <div>
     <v-card
-      class="overflow-y-auto mx-auto"
+      class="overflow-y-auto border-md w-100 mx-auto"
       v-show="props.filteredItems.length"
-      max-height="400"
-      max-width="1000"
+      max-height="350"
+      max-width="700"
     >
 
       <v-row
@@ -95,5 +94,4 @@ const doneEdit = (item : Item) => {
         </v-btn>
       </v-row>
     </v-card>
-  </div>
 </template>
