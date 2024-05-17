@@ -20,10 +20,13 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
 
 <template>
   <footer class="footer" v-show="props.items.length">
+    <div class="d-flex justify-center">
       <span class="todo-count">
         <strong v-text="remaining"></strong>
         {{ pluralize('item', remaining) }} left
       </span>
+    </div>
+
 
     <v-list class="d-flex justify-space-around">
       <li>

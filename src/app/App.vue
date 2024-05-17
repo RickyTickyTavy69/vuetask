@@ -83,7 +83,7 @@ const removeCompleted = () => {
 
 <template>
     <AppHeader/>
-    <v-card class="mx-auto" width="1000">
+    <v-card class="mx-auto">
       <AddItemForm :updateItemsList="updateItemsList"/>
 
       <ShoppingList

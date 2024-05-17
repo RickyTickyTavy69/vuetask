@@ -49,43 +49,51 @@ const doneEdit = (item : Item) => {
   }
 };
 
+
 </script>
 
 <template>
-  <div class="border-xl h-25" v-show="props.filteredItems.length">
-
-    <div
-      class="d-flex justify-space-between ga-10 border-md"
-      v-for="item in filteredItems"
-      :key="item.id"
-      :class="{ completed: item.completed }"
+  <div>
+    <v-card
+      class="overflow-y-auto mx-auto"
+      v-show="props.filteredItems.length"
+      max-height="400"
+      max-width="1000"
     >
-      <div>
-        <v-text-field
-          class="toggle"
-          type="checkbox"
-          @click="updateItem(item)"
-          :checked="item.completed"
-        />
-      </div>
-      <h4 @dblclick="editItem(item)" v-if="item !==editedItem" :class="{
+
+      <v-row
+        class="d-flex justify-space-around w-100 mx-auto ga-10 border-md my-2"
+        v-for="item in filteredItems"
+        :key="item.id"
+        :class="{ completed: item.completed }"
+      >
+        <div>
+          <v-text-field
+            class="toggle"
+            type="checkbox"
+            @click="updateItem(item)"
+            :checked="item.completed"
+          />
+        </div>
+        <h4 @dblclick="editItem(item)" v-if="item !==editedItem" :class="{
         'text-h4' : true,
         'text-decoration-line-through': item.completed,
       }">{{ item.title }} - ({{item.count}}) </h4>
-      <v-text-field
-        autocomplete="off"
-        autofocus
-        v-if="item === editedItem"
-        v-model="item.title"
-        @blur="doneEdit(item)"
-        @keyup.enter="doneEdit(item)"
-        @keyup.esc="cancelEdit(item)"
-      />
-      <v-btn
-        color="red"
-        @click="removeItem(item)">
-        delete
-      </v-btn>
-    </div>
+        <v-text-field
+          autocomplete="off"
+          autofocus
+          v-if="item === editedItem"
+          v-model="item.title"
+          @blur="doneEdit(item)"
+          @keyup.enter="doneEdit(item)"
+          @keyup.esc="cancelEdit(item)"
+        />
+        <v-btn
+          color="red"
+          @click="removeItem(item)">
+          delete
+        </v-btn>
+      </v-row>
+    </v-card>
   </div>
 </template>

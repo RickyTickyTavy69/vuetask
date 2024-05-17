@@ -95,12 +95,14 @@ onMounted(async () => {
     </div>
   </div>
 
-  <div class="mb-10">
-    <v-checkbox-btn
-      class="border-md w-25"
-      color="primary"
-      v-model="allDone"
-      label="mark all as complete"
-    />
+  <div class="mb-10 d-flex justify-center">
+    <div class="w-25">
+      <v-checkbox-btn
+        class="border-md"
+        color="primary"
+        v-model="allDone"
+        label="mark all as complete"
+      />
+    </div>
   </div>
 </template>

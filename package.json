@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "start:prod": "yarn build && npx http-server dist"
+    "start": "yarn build && npx http-server dist"
   },
   "dependencies": {
     "core-js": "^3.8.3",
