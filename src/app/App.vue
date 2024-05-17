@@ -25,15 +25,11 @@ const items = ref<Array<Item>>([]);
 const updatedTodo = ref<Item>();
 const visibility = ref<Visibility>('all');
 
-const activeTasks = computed(() => items.value.filter((todo) => !todo.completed));
-const remaining = computed(() => activeTasks.value.length);
-
-
 const filteredTodos = computed(() => {
   if (visibility.value === 'all') {
     return items.value;
   } if (visibility.value === 'active') {
-    return activeTasks;
+    return items.value.filter((item) => !item.completed);
   }
   return items.value.filter((item) => item.completed);
 });
@@ -45,6 +41,7 @@ onMounted(async () => {
 });
 
 const changeVisibility = (newValue: Visibility) => {
+  console.log("change visibility")
   visibility.value = newValue;
 };
 
@@ -85,12 +82,22 @@ const removeCompleted = () => {
 
 const markAllDone = () => {
   console.log("mark done");
-  items.value.forEach((item, idx) => {
-    items.value[idx].completed = !items.value[idx].completed;
-    DB.saveItem({
-      ...item,
+  const done = items.value.filter((item) => !item.completed);
+  if(done.length){
+    items.value.forEach((item, idx) => {
+      items.value[idx].completed = true;
+      DB.saveItem({
+        ...item,
+      });
     });
-  });
+  } else {
+    items.value.forEach((item, idx) => {
+      items.value[idx].completed = false;
+      DB.saveItem({
+        ...item,
+      });
+    });
+  }
 }
 
 </script>
@@ -104,8 +111,9 @@ const markAllDone = () => {
           :updateItemsList="updateItemsList
         "/>
         <ShoppingList
+          :propsItems="items"
           :items="items"
-          :filtered-items="filteredTodos as Array<Item>"
+          :filtered-items="filteredTodos"
           :removeItem="removeItem"
           :updateItem="updateItem"
           :markAllDone="markAllDone"

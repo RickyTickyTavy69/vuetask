@@ -9,6 +9,7 @@ const props = defineProps<{
     removeItem:(item: Item) => void,
     updateItem: (item: Item) => void,
     markAllDone: () => void,
+    propsItems: Array<Item>,
   }>();
 
 const items = ref<Array<Item>>(props.filteredItems);
@@ -55,6 +56,7 @@ const doneEdit = (item : Item) => {
 
 <template>
   <v-card
+    v-show="propsItems.length"
     class="w-100 mx-auto"
     max-width="700"
   >
@@ -71,7 +73,6 @@ const doneEdit = (item : Item) => {
 
     <v-card
       class="overflow-y-auto border-md w-100 mx-auto"
-      v-show="props.filteredItems.length"
       max-height="350"
       max-width="700"
     >
