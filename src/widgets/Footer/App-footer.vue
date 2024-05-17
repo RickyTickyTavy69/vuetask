@@ -35,7 +35,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
         <li>
           <v-btn
             @click="changeVisibility('all')"
-            :class="{ selected: visibility == 'all' }"
+            :class="{ 'bg-green': visibility == 'all' }"
             class="btn"
             data-testid="btn-visibility-all"
           >
@@ -45,7 +45,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
         <li>
           <v-btn
             @click="changeVisibility('active')"
-            :class="{ selected: visibility == 'active' }"
+            :class="{ 'bg-green': visibility == 'active' }"
             class="btn"
             data-testid="btn-visibility-active"
           >
@@ -55,7 +55,7 @@ const pluralize = (word: string, count: number) => word + (count === 1 ? '' : 's
         <li>
           <v-btn
             @click="changeVisibility('completed')"
-            :class="{ selected: visibility == 'completed' }"
+            :class="{ 'bg-green': visibility == 'completed' }"
             class="btn"
             data-testid="btn-visibility-completed"
           >

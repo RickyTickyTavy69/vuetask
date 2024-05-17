@@ -2,10 +2,7 @@
 
 import { Item } from '@/app/types/items.types';
 
-// vue
-import {
-   onMounted, ref,
-} from 'vue';
+import { ref } from 'vue';
 
 import DB from '@/db';
 
@@ -14,14 +11,11 @@ const props = defineProps<{
     items: Array<Item>;
   }>();
 
-// data
+
 const newItem = ref<string>('');
 const count = ref<number>(1);
-const items = ref<Array<Item>>([]);
 
 
-
-// methods
 const addItem = () => {
   const value = newItem.value && newItem.value.trim();
   const item = {
@@ -38,11 +32,6 @@ const addItem = () => {
   DB.saveItem(item);
   newItem.value = '';
 };
-
-// lifecycle
-onMounted(async () => {
-  items.value = await DB.getItems();
-});
 
 </script>
 

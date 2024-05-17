@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import DB from '@/db';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 import { Item } from '@/app/types/items.types';
 
-const props = defineProps<{
+defineProps<{
     filteredItems: Array<Item>,
     removeItem:(item: Item) => void,
     updateItem: (item: Item) => void,
@@ -12,36 +12,25 @@ const props = defineProps<{
     propsItems: Array<Item>,
   }>();
 
-const items = ref<Array<Item>>(props.filteredItems);
 
 const previousItem = ref<string>('');
 const editedItem = ref();
 
-onMounted(async () => {
-  items.value = await DB.getItems();
-});
-
-// editing
 
 const editItem = (item: Item) => {
   previousItem.value = item.title;
   editedItem.value = item;
 };
 
-const cancelEdit = (item: Item) => {
+const cancelEdit = () => {
   editedItem.value = null;
-  // item.title = previousItem.value.toString();
-  // what does it do
 };
 
 const doneEdit = (item : Item) => {
-  console.log('item', item);
   if (!editedItem.value) {
     return;
   }
   editedItem.value = null;
-  // item.title = item.title.trim();
-  // what does it do
   DB.saveItem({
     ...item,
     title: item.title,
@@ -50,7 +39,6 @@ const doneEdit = (item : Item) => {
     DB.deleteItem(item);
   }
 };
-
 
 </script>
 
@@ -96,22 +84,29 @@ const doneEdit = (item : Item) => {
         'text-decoration-line-through': item.completed,
       }">{{ item.title }} - ({{item.count}}) </h4>
         <v-text-field
+          max-width="110"
           autocomplete="off"
           autofocus
           v-if="item === editedItem"
           v-model="item.title"
           @blur="doneEdit(item)"
           @keyup.enter="doneEdit(item)"
-          @keyup.esc="cancelEdit(item)"
+          @keyup.esc="cancelEdit()"
         />
-        <v-btn
-          color="red"
-          @click="removeItem(item)">
-          delete
-        </v-btn>
+        <div class="d-flex flex-column ga-5">
+          <v-btn
+            color="red"
+            @click="removeItem(item)">
+            delete
+          </v-btn>
+          <v-btn
+            @click="editItem(item)"
+            color="orange"
+          >
+            Edit
+          </v-btn>
+        </div>
       </v-row>
     </v-card>
   </v-card>
 </template>
-
-// v-model="allDone"
