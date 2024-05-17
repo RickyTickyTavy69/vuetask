@@ -8,9 +8,10 @@ const props = defineProps<{
     filteredItems: Array<Item>,
     removeItem:(item: Item) => void,
     updateItem: (item: Item) => void,
+    markAllDone: () => void,
   }>();
 
-const items = ref([props.filteredItems]);
+const items = ref<Array<Item>>(props.filteredItems);
 
 const previousItem = ref<string>('');
 const editedItem = ref();
@@ -53,6 +54,21 @@ const doneEdit = (item : Item) => {
 </script>
 
 <template>
+  <v-card
+    class="w-100 mx-auto"
+    max-width="700"
+  >
+    <div class="mb-10 d-flex justify-center">
+      <div class="w-25">
+        <v-btn
+          @click="markAllDone"
+          color="primary"
+        >
+          mark all Done
+        </v-btn>
+      </div>
+    </div>
+
     <v-card
       class="overflow-y-auto border-md w-100 mx-auto"
       v-show="props.filteredItems.length"
@@ -94,4 +110,7 @@ const doneEdit = (item : Item) => {
         </v-btn>
       </v-row>
     </v-card>
+  </v-card>
 </template>
+
+// v-model="allDone"

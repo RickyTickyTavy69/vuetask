@@ -21,25 +21,27 @@ import AddItemForm from '@/widgets/AddItemForm/AddItemForm.vue';
 const { mobile } = useDisplay();
 
 // data
-const todos = ref<Array<Item>>([]);
+const items = ref<Array<Item>>([]);
 const updatedTodo = ref<Item>();
 const visibility = ref<Visibility>('all');
 
-const activeTasks = computed(() => todos.value.filter((todo) => !todo.completed));
+const activeTasks = computed(() => items.value.filter((todo) => !todo.completed));
+const remaining = computed(() => activeTasks.value.length);
+
 
 const filteredTodos = computed(() => {
   if (visibility.value === 'all') {
-    return todos.value;
+    return items.value;
   } if (visibility.value === 'active') {
     return activeTasks;
   }
-  return todos.value.filter((todo) => todo.completed);
+  return items.value.filter((item) => item.completed);
 });
 
 // lifecycle
 onMounted(async () => {
   console.log('is mobile app', mobile.value);
-  todos.value = await DB.getItems();
+  items.value = await DB.getItems();
 });
 
 const changeVisibility = (newValue: Visibility) => {
@@ -47,21 +49,21 @@ const changeVisibility = (newValue: Visibility) => {
 };
 
 const updateItemsList = (item: Item) => {
-  todos.value.push(item);
+  items.value.push(item);
   updatedTodo.value = item;
 };
 
 // items
 
 const removeItem = (item: Item) => {
-  const index = todos.value.indexOf(item);
-  todos.value.splice(index, 1);
+  const index = items.value.indexOf(item);
+  items.value.splice(index, 1);
   DB.deleteItem(item);
 };
 
 const updateItem = async (item: Item) => {
-  if (todos.value.length >= 1) {
-    todos.value.find((el) => el === item).completed = !item.completed;
+  if (items.value.length >= 1) {
+    items.value.find((el) => el === item).completed = !item.completed;
   }
   await DB.saveItem({
     ...item,
@@ -70,7 +72,7 @@ const updateItem = async (item: Item) => {
 
 const removeCompleted = () => {
   // eslint-disable-next-line array-callback-return
-  todos.value = todos.value.filter((item) => {
+  items.value = items.value.filter((item) => {
     if (item.completed) {
       DB.deleteItem(item);
     } else {
@@ -79,22 +81,38 @@ const removeCompleted = () => {
   });
 };
 
+
+
+const markAllDone = () => {
+  console.log("mark done");
+  items.value.forEach((item, idx) => {
+    items.value[idx].completed = !items.value[idx].completed;
+    DB.saveItem({
+      ...item,
+    });
+  });
+}
+
 </script>
 
 <template>
   <v-app>
     <AppHeader/>
     <v-container class="fill-height border-md">
-        <AddItemForm :updateItemsList="updateItemsList"/>
+        <AddItemForm
+          :items="items"
+          :updateItemsList="updateItemsList
+        "/>
         <ShoppingList
-          :items="todos"
+          :items="items"
           :filtered-items="filteredTodos as Array<Item>"
           :removeItem="removeItem"
           :updateItem="updateItem"
+          :markAllDone="markAllDone"
         />
     </v-container>
     <AppFooter
-      :items="todos"
+      :items="items"
       :visibility="visibility"
       :change-visibility="changeVisibility"
       :remove-completed="removeCompleted"

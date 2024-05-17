@@ -4,13 +4,14 @@ import { Item } from '@/app/types/items.types';
 
 // vue
 import {
-  computed, onMounted, ref,
+   onMounted, ref,
 } from 'vue';
 
 import DB from '@/db';
 
 const props = defineProps<{
     updateItemsList :(item: Item) => void;
+    items: Array<Item>;
   }>();
 
 // data
@@ -18,28 +19,13 @@ const newItem = ref<string>('');
 const count = ref<number>(1);
 const items = ref<Array<Item>>([]);
 
-const activeTasks = computed(() => items.value.filter((item) => !item.completed));
-const remaining = computed(() => activeTasks.value.length);
 
-const allDone = computed({
-  get() {
-    return remaining.value === 0;
-  },
-  set(value: boolean) {
-    items.value.forEach((item, idx) => {
-      items.value[idx].completed = value;
-      DB.saveItem({
-        ...item,
-      });
-    });
-  },
-});
 
 // methods
 const addItem = () => {
   const value = newItem.value && newItem.value.trim();
   const item = {
-    id: items.value.length + 1,
+    id: props.items.length + 1,
     title: value,
     completed: false,
     count: count.value,
@@ -74,17 +60,6 @@ onMounted(async () => {
         />
         <v-text-field
           class="w-25"
-          label="price"
-          placeholder="price in €"
-          autofocus
-          autocomplete="off"
-          type="number"
-          @keyup.enter="addItem"
-        />
-      </div>
-      <div class="d-flex ga-10">
-        <v-text-field
-          class="w-25"
           label="amount"
           placeholder="how many"
           autofocus
@@ -93,17 +68,9 @@ onMounted(async () => {
           @keyup.enter="addItem"
           v-model="count"
         />
+      </div>
+      <div class="d-flex ga-10">
         <v-btn class="w-25" @click="addItem">ADD to List</v-btn>
       </div>
-    <div class="mb-10 d-flex justify-center">
-      <div class="w-25">
-        <v-checkbox-btn
-          class="border-md"
-          color="primary"
-          v-model="allDone"
-          label="mark all as complete"
-        />
-      </div>
-    </div>
     </v-container>
 </template>
